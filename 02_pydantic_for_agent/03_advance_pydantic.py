@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ValidationError
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # Pydantic is a data validation and settings management library for Python, based on Python type annotations. 
 # It allows you to define data models with type hints and automatically validates the data against those models.
@@ -16,6 +16,7 @@ class PatientData(BaseModel):
     married: bool
     allergies: List[str]  # List of strings to represent allergies
     contact_info: Dict[str, str]  # Dictionary to represent contact information with string keys and values
+    note: Optional[List[str]] = None  # Optional field for additional notes, can be None if not provided
 
 def add_patient_data(patient_data: PatientData):
     print(f"Adding patient data: {patient_data.model_dump()}")  # Use model_dump() to get a dictionary representation of the validated data
@@ -32,7 +33,8 @@ def main():
         "contact_info": {
             "phone": "123-456-7890",
             "email": "demo@gmail.com"
-        }
+        },
+        "note": ["Patient is allergic to peanuts", "Patient is married"]    # This is an optional field that can be None if not provided
     }
 
     try:
