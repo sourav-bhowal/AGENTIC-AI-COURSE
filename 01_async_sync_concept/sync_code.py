@@ -23,6 +23,7 @@ def main():
     print(f"News Data: {news_data}")
     print(f"Total time taken: {end_time - start_time:.2f} seconds")
 
+# __name__ == "__main__" block to ensure the main function is called when the script is executed directly
 if __name__ == "__main__":
     main()
 

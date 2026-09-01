@@ -24,4 +24,5 @@ async def main():
     print(news)
 
 
+# Wrap the main function call in asyncio.run() to execute the asynchronous code
 asyncio.run(main())
