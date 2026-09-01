@@ -1,5 +1,7 @@
 import time
 
+# This code simulates fetching weather and news data sequentially, which can take a significant amount of time due to the simulated delays.
+
 def fetch_weather():
     print("Fetching weather data...")
     time.sleep(4)  # Simulate a delay in fetching data
