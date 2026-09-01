@@ -24,6 +24,7 @@ def main():
 
     try:
         # Validate the patient data using the Pydantic model
+        # ** means unpacking the dictionary so that the keys of the dictionary are passed as keyword arguments to the PatientData constructor
         valid_patient_data = PatientData(**patient_data)
         
         # Pass the validated data to the add_patient_data function
