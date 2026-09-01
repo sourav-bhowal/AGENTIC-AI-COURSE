@@ -5,12 +5,12 @@ import time
 def fetch_weather():
     print("Fetching weather data...")
     time.sleep(4)  # Simulate a delay in fetching data
-    return {"temperature": 22, "condition": "Sunny"}
+    return "Weather data: Sunny, 25°C"
 
 def fetch_news():
     print("Fetching news data...")
     time.sleep(2)  # Simulate a delay in fetching data
-    return {"headline": "Breaking News!", "details": "Some important news details."}
+    return "News data: Breaking News!"
 
 def main():
     start_time = time.time()
