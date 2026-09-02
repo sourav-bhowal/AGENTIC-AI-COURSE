@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ValidationError, EmailStr, AnyUrl, Field, field_validator
+from pydantic import BaseModel, ValidationError, EmailStr, AnyUrl, Field, field_validator, model_validator, computed_field
 from typing import List, Dict, Optional, Annotated
 
 # Define a Pydantic model for patient data (BaseModel is the base class for creating Pydantic models)
@@ -34,16 +34,41 @@ class PatientData(BaseModel):
             raise ValueError(f"Blood type must be one of {valid_blood_types}")
         return value
 
+    # Custom validator for name field to transform the name to uppercase before validation
+    @field_validator("name")
+    @classmethod
+    def transform_name(cls, value):
+        return value.upper()  # Transform the name to uppercase before validation 
 
+    # Custom validator for the entire model to check if the age and blood type are compatible
+    @model_validator(mode="before")  # model_validator is a decorator provided by Pydantic to define custom validation logic for the entire model. In this case, we are defining a custom validator that will be executed before the model is validated.
+    @classmethod
+    def check_age_and_blood_type(cls, values):
+        age = values.get("age")
+        blood_type = values.get("blood_type")
+        if age is not None and blood_type is not None:
+            if age < 18 and blood_type in ["AB+", "AB-"]:
+                raise ValueError("Patients under 18 cannot have AB blood type")
+        return values
+
+    # Computed field to calculate the Body Mass Index (BMI) of the patient
+    @computed_field  # computed_field is a decorator provided by Pydantic to define computed fields in the model. Computed fields are fields that are not explicitly defined in the model but are derived from other fields in the model.
+    @property   # property is a built-in Python decorator that allows you to define a method as a property, which can be accessed like an attribute. In this case, we are defining a computed field for the BMI of the patient.
+    def bmi(self) -> float:
+        """Calculate the Body Mass Index (BMI) of the patient."""
+        return round(self.weight / (self.height / 100) ** 2, 2)  # BMI formula: weight (kg) / (height (m))^2, rounded to 2 decimal places
+
+# Function to add patient data (simulated database operation)
 def add_patient_data(patient_data: PatientData):
     print(f"Adding patient data: {patient_data.model_dump()}") 
 
+# Main function to demonstrate the usage of the PatientData model
 def main():
     # Example patient data
     patient_data = {
         "name": "John Doe",
         "email": "john.doe@gmail.com",
-        "age": 50,
+        "age": 15,
         "blood_type": "O+",
         "height": 175.5,
         "weight": 70.5,
