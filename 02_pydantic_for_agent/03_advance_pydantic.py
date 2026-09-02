@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ValidationError, EmailStr, AnyUrl, Field
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Annotated
 
 # Pydantic is a data validation and settings management library for Python, based on Python type annotations. 
 # It allows you to define data models with type hints and automatically validates the data against those models.
@@ -9,14 +9,15 @@ from typing import List, Dict, Optional
 
 # Define a Pydantic model for patient data (BaseModel is the base class for creating Pydantic models)
 class PatientData(BaseModel):
-    name: str = Field(max_length=50)    # Use Field to specify additional validation constraints, such as maximum length for the name field
+    name: Annotated[str, Field(max_length=50, description="The name of the patient", title="Name", examples=["John Doe"])]    # Use Field to specify additional validation constraints, such as maximum length for the name field, Annotated is used to provide additional metadata for the field, such as description, title, and examples
     email: EmailStr  # EmailStr is a special type provided by Pydantic to validate email addresses
-    age: int = Field(gt=0, lt=100)  # Use Field to specify that age must be greater than 0 and less than 100
+    age: Annotated[int, Field(gt=0, lt=100, description="The age of the patient")]  # Use Field to specify that age must be greater than 0 and less than 100
     blood_type: str
-    weight: float = Field(gt=0)  # Use Field to specify that weight must be greater than 0
+    height: float = Field(gt=0, strict=True, description="The height of the patient")  # Use Field to specify that height must be greater than 0
+    weight: float = Field(gt=0, description="The weight of the patient")  # Use Field to specify that weight must be greater than 0
     married: bool
     allergies: List[str]  # List of strings to represent allergies
-    contact_info: Dict[str, str]  # Dictionary to represent contact information with string keys and values
+    contact_info: Annotated[Dict[str, str], Field(description="The contact information of the patient", examples=[{"phone": "123-456-7890", "email": "demo@gmail.com"}])]  # Dictionary to represent contact information with string keys and values
     note: Optional[List[str]] = Field(default=None, max_length=5)  # Optional field for additional notes, with a maximum length of 5 notes and default value of None if not provided
     report_url: AnyUrl  # AnyUrl is a special type provided by Pydantic to validate URLs
 
@@ -30,6 +31,7 @@ def main():
         "email": "john.doe@gmail.com",
         "age": 50,
         "blood_type": "O+",
+        "height": 175.5,
         "weight": 70.5,
         "married": True,
         "allergies": ["Peanuts", "Shellfish"],
