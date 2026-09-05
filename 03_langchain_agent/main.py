@@ -15,24 +15,26 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 # Initialize the Tavily Search Tool
-search_tool = TavilySearchResults(max_results=2)
+search_tool = TavilySearchResults(max_results=2) # max_results is the number of results to return
 
 # Initialize the LLM
 llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=OPENAI_API_KEY)
 
-# Get the React Agent Prompt
-prompt = hub.pull("hwchase17/react")    # prompt is the prompt for the Agent we get it from the LangChain Hub
+# Get the ReAct Agent Prompt from the LangChain Hub
+prompt = hub.pull("hwchase17/react")
 
-# Tools for the Agent
+# Tools for the Agent - In this case, we are using the Tavily Search Tool
 tools = [search_tool]
 
-# Create the Agent
+# Create the ReAct Agent
+# ReAct Agent - It is a type of Agent that uses the ReAct framework to create a chain of thought process
 agent = create_react_agent(llm=llm, tools=tools, prompt=prompt) # prompt is the prompt for the Agent
 
-# Execute the Agent
+# Create the Agent Executor
+# Agent Executor - It orchestrates the Agent and the Tools to execute the task
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)  # verbose=True to see the Agent's thinking process
 
-# Run the Agent 
+# Run the Agent Executor
 response = agent_executor.invoke({
     "input": (
         "Latest news about US and Iran War? Also provide the time and date of the news."
