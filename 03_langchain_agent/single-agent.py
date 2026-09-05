@@ -17,14 +17,26 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 # Initialize the Tavily Search Tool
 search_tool = TavilySearchResults(max_results=2) # max_results is the number of results to return
 
+# Custom Tool - In this case, we are using the Custom Tool to get the weather of a city
+@tool
+def get_weather(city: str) -> str:
+    """Get the weather of a city"""
+    url = f"https://wttr.in/{city}?format=%C+%t"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        return f"The weather in {city} is {response.text.strip()}."
+
+    return "I don't know the weather for that location."
+
 # Initialize the LLM
 llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=OPENAI_API_KEY)
 
 # Get the ReAct Agent Prompt from the LangChain Hub
 prompt = hub.pull("hwchase17/react")
 
-# Tools for the Agent - In this case, we are using the Tavily Search Tool
-tools = [search_tool]
+# Tools for the Agent - In this case, we are using the Tavily Search Tool and the Custom Tool
+tools = [search_tool, get_weather]
 
 # Create the ReAct Agent
 # ReAct Agent - It is a type of Agent that uses the ReAct framework to create a chain of thought process
@@ -38,6 +50,9 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)  # verbos
 response = agent_executor.invoke({
     "input": (
         "Latest news about US and Iran War? Also provide the time and date of the news."
+        "What is the weather in Tokyo?"
+        "Which tools you used to get the latest news about US and Iran War?"
+        "Which tools you used to get the weather in Tokyo?"
     )
 })
 
