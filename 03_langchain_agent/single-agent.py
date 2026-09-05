@@ -18,7 +18,7 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 search_tool = TavilySearchResults(max_results=2) # max_results is the number of results to return
 
 # Custom Tool - In this case, we are using the Custom Tool to get the weather of a city
-@tool
+@tool   # @tool is a decorator to register the function as a tool
 def get_weather(city: str) -> str:
     """Get the weather of a city"""
     url = f"https://wttr.in/{city}?format=%C+%t"
