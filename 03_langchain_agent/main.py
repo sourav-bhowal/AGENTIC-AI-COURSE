@@ -20,7 +20,7 @@ search_tool = TavilySearchResults(max_results=2)
 # Initialize the LLM
 llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=OPENAI_API_KEY)
 
-# Get the React Prompt
+# Get the React Agent Prompt
 prompt = hub.pull("hwchase17/react")    # prompt is the prompt for the Agent we get it from the LangChain Hub
 
 # Tools for the Agent
