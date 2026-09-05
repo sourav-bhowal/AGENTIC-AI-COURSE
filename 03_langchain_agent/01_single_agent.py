@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.tools import tool
 from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain import hub
 from langchain.agents import create_react_agent, AgentExecutor
+from langsmith import Client
 
 # Load environment variables
 load_dotenv()
@@ -13,6 +13,7 @@ load_dotenv()
 # Get the API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
 
 # Initialize the Tavily Search Tool
 search_tool = TavilySearchResults(max_results=2) # max_results is the number of results to return
@@ -32,8 +33,11 @@ def get_weather(city: str) -> str:
 # Initialize the LLM
 llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0, api_key=OPENAI_API_KEY)
 
-# Get the ReAct Agent Prompt from the LangChain Hub
-prompt = hub.pull("hwchase17/react")
+# Initialize the LangSmith Client
+langsmith_client = Client(api_key=LANGSMITH_API_KEY)
+
+# Get the ReAct Agent Prompt from the LangSmith Prompt Registry
+prompt = langsmith_client.pull_prompt("hwchase17/react")
 
 # Tools for the Agent - In this case, we are using the Tavily Search Tool and the Custom Tool
 tools = [search_tool, get_weather]

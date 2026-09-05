@@ -1,6 +1,6 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic to a LangChain ReAct agent with web search and custom tools.
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic to LangChain ReAct agents with web search and custom tools.
 
 ## Prerequisites
 
@@ -8,6 +8,7 @@ Hands-on Python examples for building agentic AI systems — from async fundamen
 - Python 3.10+ (uv can install this for you)
 - An [OpenAI API key](https://platform.openai.com/api-keys)
 - A [Tavily API key](https://tavily.com/) (for the LangChain agent module)
+- A [LangSmith API key](https://smith.langchain.com/) (to pull the ReAct prompt)
 
 ## Setup
 
@@ -40,6 +41,7 @@ Then edit `.env`:
 ```
 OPENAI_API_KEY=your_openai_key
 TAVILY_API_KEY=your_tavily_key
+LANGSMITH_API_KEY=your_langsmith_key
 ```
 
 ## Course structure
@@ -48,7 +50,7 @@ TAVILY_API_KEY=your_tavily_key
 |--------|--------|-------------------|
 | 01 | `01_async_sync_concept/` | Sync vs async I/O — why agents benefit from concurrency |
 | 02 | `02_pydantic_for_agent/` | Data validation with Pydantic — models agents can trust |
-| 03 | `03_langchain_agent/` | LangChain ReAct agent with Tavily search and a custom weather tool |
+| 03 | `03_langchain_agent/` | LangChain ReAct agents — single agent (tools + search), multi-agent next |
 
 ### 01 — Async / Sync
 
@@ -75,20 +77,24 @@ Progresses from plain dicts to validated, nested Pydantic models.
 
 ```bash
 uv run python 03_langchain_agent/01_single_agent.py
+# uv run python 03_langchain_agent/02_multi_agent.py  # coming soon
 ```
 
-Builds a ReAct agent (GPT-4.1-mini) that combines:
+**`01_single_agent.py`** — a ReAct agent (GPT-4.1-mini) that combines:
 
 - **Tavily Search** — live web results for news and current events
 - **Custom `get_weather` tool** — city weather via [wttr.in](https://wttr.in)
 
-Requires both API keys in `.env`. Run with `verbose=True` to see the agent's reasoning and which tools it chooses.
+Requires all three API keys in `.env`. The ReAct prompt is pulled from LangSmith (`hwchase17/react`). Run with `verbose=True` to see the agent's reasoning and which tools it chooses.
+
+**`02_multi_agent.py`** — multi-agent example (in progress).
 
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
 
 - `langchain`, `langchain-openai`, `langchain-community`, `langchainhub`
+- `langsmith`
 - `pydantic`
 - `tavily-python`
 - `requests`
@@ -97,4 +103,4 @@ Key packages (see `requirements.txt` for the full list):
 ## Notes
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
-- The LangChain agent pulls the ReAct prompt from [LangChain Hub](https://smith.langchain.com/hub/hwchase17/react) (`hwchase17/react`).
+- The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
