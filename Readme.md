@@ -1,6 +1,6 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic to a LangChain ReAct agent with web search.
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic to a LangChain ReAct agent with web search and custom tools.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Hands-on Python examples for building agentic AI systems — from async fundamen
 
 ```bash
 # Clone the repo
-git clone <your-repo-url>
+git clone https://github.com/sourav-bhowal/AGENTIC-AI-COURSE.git
 cd AGENTIC-AI-COURSE
 
 # Create a virtual environment
@@ -48,7 +48,7 @@ TAVILY_API_KEY=your_tavily_key
 |--------|--------|-------------------|
 | 01 | `01_async_sync_concept/` | Sync vs async I/O — why agents benefit from concurrency |
 | 02 | `02_pydantic_for_agent/` | Data validation with Pydantic — models agents can trust |
-| 03 | `03_langchain_agent/` | LangChain ReAct agent with Tavily search |
+| 03 | `03_langchain_agent/` | LangChain ReAct agent with Tavily search and a custom weather tool |
 
 ### 01 — Async / Sync
 
@@ -74,18 +74,24 @@ Progresses from plain dicts to validated, nested Pydantic models.
 ### 03 — LangChain agent
 
 ```bash
-uv run python 03_langchain_agent/main.py
+uv run python 03_langchain_agent/01_single_agent.py
 ```
 
-Builds a ReAct agent that uses GPT and Tavily Search to answer questions with live web results. Requires both API keys in `.env`.
+Builds a ReAct agent (GPT-4.1-mini) that combines:
+
+- **Tavily Search** — live web results for news and current events
+- **Custom `get_weather` tool** — city weather via [wttr.in](https://wttr.in)
+
+Requires both API keys in `.env`. Run with `verbose=True` to see the agent's reasoning and which tools it chooses.
 
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
 
-- `langchain`, `langchain-openai`, `langchain-community`
+- `langchain`, `langchain-openai`, `langchain-community`, `langchainhub`
 - `pydantic`
 - `tavily-python`
+- `requests`
 - `python-dotenv`
 
 ## Notes
