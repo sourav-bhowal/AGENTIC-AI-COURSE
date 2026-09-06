@@ -1,13 +1,13 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic to LangChain ReAct agents with web search and custom tools.
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic to LangChain ReAct agents (single-agent and multi-agent).
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
 - An [OpenAI API key](https://platform.openai.com/api-keys)
-- A [Tavily API key](https://tavily.com/) (for the LangChain agent module)
+- A [Tavily API key](https://tavily.com/) (for the LangChain agent modules)
 - A [LangSmith API key](https://smith.langchain.com/) (to pull the ReAct prompt)
 
 ## Setup
@@ -50,7 +50,8 @@ LANGSMITH_API_KEY=your_langsmith_key
 |--------|--------|-------------------|
 | 01 | `01_async_sync_concept/` | Sync vs async I/O — why agents benefit from concurrency |
 | 02 | `02_pydantic_for_agent/` | Data validation with Pydantic — models agents can trust |
-| 03 | `03_langchain_agent/` | LangChain ReAct agents — single agent (tools + search), multi-agent next |
+| 03 | `03_langchain_single_agent/` | LangChain ReAct single agent — tools + web search |
+| 04 | `04_langchain_multi_agent/` | Multi-agent pipelines — agents, tools, and orchestration |
 
 ### 01 — Async / Sync
 
@@ -73,11 +74,10 @@ uv run python 02_pydantic_for_agent/05_nested_models_pydantic.py
 
 Progresses from plain dicts to validated, nested Pydantic models.
 
-### 03 — LangChain agent
+### 03 — LangChain single agent
 
 ```bash
-uv run python 03_langchain_agent/01_single_agent.py
-# uv run python 03_langchain_agent/02_multi_agent.py  # coming soon
+uv run python 03_langchain_single_agent/01_single_agent.py
 ```
 
 **`01_single_agent.py`** — a ReAct agent (GPT-4.1-mini) that combines:
@@ -87,7 +87,24 @@ uv run python 03_langchain_agent/01_single_agent.py
 
 Requires all three API keys in `.env`. The ReAct prompt is pulled from LangSmith (`hwchase17/react`). Run with `verbose=True` to see the agent's reasoning and which tools it chooses.
 
-**`02_multi_agent.py`** — multi-agent example (in progress).
+### 04 — LangChain multi-agent
+
+```bash
+uv run python 04_langchain_multi_agent/app.py
+```
+
+Scaffolded layout for a multi-agent system:
+
+```
+04_langchain_multi_agent/
+├── app.py                 # Entry point
+└── src/
+    ├── agents/            # Agent definitions
+    ├── tools/             # Shared / agent-specific tools
+    └── pipelines/         # Orchestration and routing
+```
+
+Implementation is in progress.
 
 ## Dependencies
 
