@@ -11,11 +11,8 @@ import os
 # Load environment variables
 load_dotenv()
 
-# Get the API Keys
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
-
 # Initialize the Tavily Client
-tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
+tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
 @tool
 def web_search(query: str) -> str:
