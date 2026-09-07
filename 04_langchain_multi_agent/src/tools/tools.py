@@ -29,7 +29,9 @@ def web_search(query: str) -> str:
 
     # Loop through the responses and add the title, URL, and content to the output
     for res in responses["results"]:
-        output.append(f"Title: {res['title']}\nURL: {res['url']}\nContent: {res['content'][:300]}\n")
+        output.append(
+            f"Title: {res['title']}\nURL: {res['url']}\nSnippet: {res['content'][:300]}\n"
+        )
 
     # Join the output with newlines
     return "\n-----\n".join(output)

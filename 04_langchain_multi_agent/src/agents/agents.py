@@ -26,22 +26,21 @@ def build_reader_agent():
         
 # 3rd Writer Prompt - This prompt is used to write the report based on the topic and research gathered by the reader agent
 writer_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are an expert writer. Write clean, structured, and insightful reports"),
-    ("human", f"""
-        Write a detailed research report on the following topic below.
+    ("system", "You are an expert research writer. Write clear, structured and insightful reports."),
+    ("human", """Write a detailed research report on the topic below.
 
-        Topic: {topic}
+    Topic: {topic}
 
-        Research Gathered: {research}
+    Research Gathered:
+    {research}
 
-        Structure the report in the following format:
-        - Introduction
-        - Key Findings (3-5 key findings)
-        - Conclusion
-        - References (list of sources used in urls format)
+    Structure the report as:
+    - Introduction
+    - Key Findings (minimum 3 well-explained points)
+    - Conclusion
+    - Sources (list all URLs found in the research)
 
-        Be detailed and thorough in your report.
-    """)
+    Be detailed, factual and professional."""),
 ])
 
 # Writer Chain - It will write the report based on the topic and research gathered
@@ -49,26 +48,26 @@ writer_chain = writer_prompt | llm | StrOutputParser()
 
 # 4th Critic Prompt - This prompt is used to critique the report based on the topic and research gathered by the reader agent
 critic_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are an expert critic. Critique the report based on the topic and research gathered by the reader agent"),
-    ("human", f"""
-        Critique the report based on the topic and research gathered by the reader agent
+    ("system", "You are a sharp and constructive research critic. Be honest and specific."),
+    ("human", """Review the research report below and evaluate it strictly.
 
-        Report: {report}
+    Report:
+    {report}
 
-        Critique the report in the following format:
-        Score: X/10
-        Strengths:
-        - ...
-        - ...
-        Weaknesses:
-        - ...
-        - ...
-        Improvements:
-        - ...
-        - ...
-        One line verdict:
-        ...
-    """)
+    Respond in this exact format:
+
+    Score: X/10
+
+    Strengths:
+    - ...
+    - ...
+
+    Areas to Improve:
+    - ...
+    - ...
+
+    One line verdict:
+    ..."""),
 ])
 
 # Critic Chain - It will critique the report based on the topic and research gathered by the reader agent
