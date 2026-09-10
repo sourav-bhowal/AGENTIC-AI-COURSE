@@ -1,16 +1,4 @@
-from langchain_core.messages import ToolMessage
 from src.agents.agents import build_search_agent, build_reader_agent, writer_chain, critic_chain
-
-def extract_tool_outputs(messages) -> str:
-    """Prefer raw tool outputs (Title/URL/Snippet) over the agent's final summary."""
-    tool_contents = [
-        msg.content for msg in messages
-        if isinstance(msg, ToolMessage) and msg.content
-    ]
-    if tool_contents:
-        return "\n\n".join(tool_contents)
-    return messages[-1].content if messages else ""
-
 
 def run_research_pipeline(topic: str) -> dict:
 
@@ -33,8 +21,8 @@ def run_research_pipeline(topic: str) -> dict:
         ))],
     })
 
-    # Store raw tool search results (Title/URL/Snippet), not the agent's paraphrase
-    state["search_results"] = extract_tool_outputs(search_result["messages"])
+    # Store the search results in the state
+    state["search_results"] = search_result["messages"][-1].content
 
     # Print the search results
     print("\n Search Results: \n", state["search_results"])
