@@ -6,11 +6,11 @@ Hands-on Python examples for building agentic AI systems — from async fundamen
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–05; module 05 examples 02–03)
 - A [Tavily API key](https://tavily.com/) (modules 03–04)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
-Modules 01, 02, and 05 run without API keys.
+Modules 01, 02, and `05_langgraph_agent/01_temp_conversion.py` run without API keys.
 
 ## Setup
 
@@ -54,7 +54,7 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 02 | `02_pydantic_for_agent/` | Data validation with Pydantic — models agents can trust |
 | 03 | `03_langchain_single_agent/` | LangChain ReAct single agent — tools + web search |
 | 04 | `04_langchain_multi_agent/` | Multi-agent research pipeline — search, scrape, write, critique |
-| 05 | `05_langgraph_agent/` | LangGraph — state, nodes, edges, and compiling a graph |
+| 05 | `05_langgraph_agent/` | LangGraph — state, multi-node graphs, LLM nodes, and prompt chaining |
 
 ### 01 — Async / Sync
 
@@ -118,9 +118,17 @@ Default topic: *The impact of AI on the future of work*. Requires `OPENAI_API_KE
 
 ```bash
 uv run python 05_langgraph_agent/01_temp_conversion.py
+uv run python 05_langgraph_agent/02_llm_qa.py
+uv run python 05_langgraph_agent/03_prompt_chaining.py
 ```
 
-**`01_temp_conversion.py`** — a minimal LangGraph workflow: typed state (`celsius` / `fahrenheit`), a conversion node, `START` → node → `END` edges, then compile and invoke. No API keys required.
+Progresses from a pure-Python graph to LLM nodes and a multi-step prompt chain.
+
+**`01_temp_conversion.py`** — typed state (`celsius` / `fahrenheit` / `weather`), two nodes (`convert_temp` → `weather_report`), `START` → … → `END`, then compile and invoke. No API keys required.
+
+**`02_llm_qa.py`** — a single-node graph that answers a question with `ChatOpenAI` (GPT-4.1-mini). Introduces wiring an LLM into a LangGraph node. Requires `OPENAI_API_KEY`.
+
+**`03_prompt_chaining.py`** — a blog-post pipeline: `generate_outline` → `generate_content` → `evaluate_content`. Shared `BlogPostState` accumulates title, outline, content, and evaluation. Requires `OPENAI_API_KEY`.
 
 ## Dependencies
 
@@ -139,4 +147,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 is a first LangGraph example (state + a single node). Later examples will add branching, loops, and tool-calling graphs.
+- Module 05 covers linear graphs (state + nodes + edges). Later examples can add branching, loops, and tool-calling graphs.
