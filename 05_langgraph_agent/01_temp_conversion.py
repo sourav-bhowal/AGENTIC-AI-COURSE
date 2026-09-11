@@ -7,7 +7,7 @@ class TemperatureState(TypedDict):
     fahrenheit: float
 
 def convert_temp(state: TemperatureState) -> TemperatureState:
-    """Convert Celsius to Fahrenheit"""
+    """Convert Celsius to Fahrenheit and round to 2 decimal places"""
     fahrenheit = (state["celsius"] * 9/5) + 32
     return {"fahrenheit": round(fahrenheit, 2)}
 
