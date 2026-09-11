@@ -1,14 +1,16 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic to LangChain ReAct agents (single-agent and multi-agent).
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph.
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys)
-- A [Tavily API key](https://tavily.com/) (for the LangChain agent modules)
-- A [LangSmith API key](https://smith.langchain.com/) (to pull the ReAct prompt)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04)
+- A [Tavily API key](https://tavily.com/) (modules 03–04)
+- A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
+
+Modules 01, 02, and 05 run without API keys.
 
 ## Setup
 
@@ -51,7 +53,8 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 01 | `01_async_sync_concept/` | Sync vs async I/O — why agents benefit from concurrency |
 | 02 | `02_pydantic_for_agent/` | Data validation with Pydantic — models agents can trust |
 | 03 | `03_langchain_single_agent/` | LangChain ReAct single agent — tools + web search |
-| 04 | `04_langchain_multi_agent/` | Multi-agent pipelines — agents, tools, and orchestration |
+| 04 | `04_langchain_multi_agent/` | Multi-agent research pipeline — search, scrape, write, critique |
+| 05 | `05_langgraph_agent/` | LangGraph — state, nodes, edges, and compiling a graph |
 
 ### 01 — Async / Sync
 
@@ -93,27 +96,42 @@ Requires all three API keys in `.env`. The ReAct prompt is pulled from LangSmith
 uv run python 04_langchain_multi_agent/app.py
 ```
 
-Scaffolded layout for a multi-agent system:
+A sequential research pipeline with four stages:
+
+1. **Search agent** — Tavily web search for a topic
+2. **Reader agent** — scrapes the most relevant URLs (trafilatura → readability → BeautifulSoup fallback)
+3. **Writer chain** — drafts a structured research report
+4. **Critic chain** — scores the report and lists strengths / areas to improve
+
+Default topic: *The impact of AI on the future of work*. Requires `OPENAI_API_KEY` and `TAVILY_API_KEY`.
 
 ```
 04_langchain_multi_agent/
 ├── app.py                 # Entry point
 └── src/
-    ├── agents/            # Agent definitions
-    ├── tools/             # Shared / agent-specific tools
+    ├── agents/            # Search, reader, writer, critic
+    ├── tools/             # web_search and web_scrape
     └── pipelines/         # Orchestration and routing
 ```
 
-Implementation is in progress.
+### 05 — LangGraph
+
+```bash
+uv run python 05_langgraph_agent/01_temp_conversion.py
+```
+
+**`01_temp_conversion.py`** — a minimal LangGraph workflow: typed state (`celsius` / `fahrenheit`), a conversion node, `START` → node → `END` edges, then compile and invoke. No API keys required.
 
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
 
 - `langchain`, `langchain-openai`, `langchain-community`, `langchainhub`
+- `langgraph`
 - `langsmith`
 - `pydantic`
 - `tavily-python`
+- `trafilatura`, `readability-lxml`, `beautifulsoup4`
 - `requests`
 - `python-dotenv`
 
@@ -121,3 +139,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
+- Module 05 is a first LangGraph example (state + a single node). Later examples will add branching, loops, and tool-calling graphs.
