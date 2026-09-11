@@ -36,8 +36,22 @@ graph_builder.add_edge("weather_report", END)
 # Compile the graph
 graph = graph_builder.compile()
 
-# Invoke the graph with a Celsius temperature
-temp_in_celsius = 14
-result = graph.invoke({"celsius": temp_in_celsius})
-print(f"{temp_in_celsius}°C is {result['fahrenheit']}°F")
-print(f"Weather report: {result['weather']}")
+# Main function
+def main():
+    print("Welcome to the temperature conversion and weather report agent!")
+    while True:
+        try:
+            temp_in_celsius = float(input("Enter the temperature in Celsius: "))
+            # Invoke the graph with the temperature
+            result = graph.invoke({"celsius": temp_in_celsius})
+            # Print the results
+            print(f"{temp_in_celsius}°C is {result['fahrenheit']}°F")
+            print(f"Weather report: {result['weather']}")
+        except ValueError:
+            print("Invalid input. Please enter a valid temperature.")
+        finally:
+            print("\nThank you for using the temperature conversion and weather report agent!")
+            break
+
+# Run the main function
+main()
