@@ -8,9 +8,8 @@ class TemperatureState(TypedDict):
 
 def convert_temp(state: TemperatureState) -> TemperatureState:
     """Convert Celsius to Fahrenheit"""
-    return {
-        "fahrenheit": (state["celsius"] * 9/5) + 32
-    }
+    fahrenheit = (state["celsius"] * 9/5) + 32
+    return {"fahrenheit": round(fahrenheit, 2)}
 
 # Build the graph with the state type
 graph_builder = StateGraph(TemperatureState)
@@ -26,6 +25,6 @@ graph_builder.add_edge("convert_temp", END)
 graph = graph_builder.compile()
 
 # Invoke the graph with a Celsius temperature
-temp_in_celsius = 40
+temp_in_celsius = 40.6
 result = graph.invoke({"celsius": temp_in_celsius})
 print(f"{temp_in_celsius}°C is {result['fahrenheit']}°F")
