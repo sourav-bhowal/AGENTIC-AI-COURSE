@@ -117,9 +117,9 @@ Default topic: *The impact of AI on the future of work*. Requires `OPENAI_API_KE
 ### 05 — LangGraph
 
 ```bash
-uv run python 05_langgraph_agent/01_temp_conversion.py
-uv run python 05_langgraph_agent/02_llm_qa.py
-uv run python 05_langgraph_agent/03_prompt_chaining.py
+uv run python 05_langgraph_sequential_agent/01_temp_conversion.py
+uv run python 05_langgraph_sequential_agent/02_llm_qa.py
+uv run python 05_langgraph_sequential_agent/03_prompt_chaining.py
 ```
 
 Progresses from a pure-Python graph to LLM nodes and a multi-step prompt chain.
