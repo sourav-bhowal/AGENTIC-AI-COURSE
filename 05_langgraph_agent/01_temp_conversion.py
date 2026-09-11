@@ -39,19 +39,17 @@ graph = graph_builder.compile()
 # Main function
 def main():
     print("Welcome to the temperature conversion and weather report agent!")
-    while True:
-        try:
-            temp_in_celsius = float(input("Enter the temperature in Celsius: "))
-            # Invoke the graph with the temperature
-            result = graph.invoke({"celsius": temp_in_celsius})
-            # Print the results
-            print(f"{temp_in_celsius}°C is {result['fahrenheit']}°F")
-            print(f"Weather report: {result['weather']}")
-        except ValueError:
-            print("Invalid input. Please enter a valid temperature.")
-        finally:
-            print("\nThank you for using the temperature conversion and weather report agent!")
-            break
+    try:
+        temp_in_celsius = float(input("Enter the temperature in Celsius: "))
+        # Invoke the graph with the temperature
+        result = graph.invoke({"celsius": temp_in_celsius})
+        # Print the results
+        print(f"{temp_in_celsius}°C is {result['fahrenheit']}°F")
+        print(f"Weather report: {result['weather']}")
+    except ValueError:
+        print("Invalid input. Please enter a valid temperature.")
+    finally:
+        print("\nThank you for using the temperature conversion and weather report agent!")
 
 # Run the main function
 main()
