@@ -1,16 +1,20 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph.
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential and parallel).
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–05; module 05 examples 02–03)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02)
 - A [Tavily API key](https://tavily.com/) (modules 03–04)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
-Modules 01, 02, and `05_langgraph_agent/01_temp_conversion.py` run without API keys.
+These run without API keys:
+
+- Modules 01 and 02
+- `05_langgraph_sequential_agent/01_temp_conversion.py`
+- `06_langgraph_parallel_agent/01_employee_analytics.py`
 
 ## Setup
 
@@ -54,7 +58,8 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 02 | `02_pydantic_for_agent/` | Data validation with Pydantic — models agents can trust |
 | 03 | `03_langchain_single_agent/` | LangChain ReAct single agent — tools + web search |
 | 04 | `04_langchain_multi_agent/` | Multi-agent research pipeline — search, scrape, write, critique |
-| 05 | `05_langgraph_agent/` | LangGraph — state, multi-node graphs, LLM nodes, and prompt chaining |
+| 05 | `05_langgraph_sequential_agent/` | LangGraph sequential graphs — state, LLM nodes, prompt chaining |
+| 06 | `06_langgraph_parallel_agent/` | LangGraph parallel fan-out / fan-in — concurrent nodes and reducers |
 
 ### 01 — Async / Sync
 
@@ -114,7 +119,7 @@ Default topic: *The impact of AI on the future of work*. Requires `OPENAI_API_KE
     └── pipelines/         # Orchestration and routing
 ```
 
-### 05 — LangGraph
+### 05 — LangGraph sequential
 
 ```bash
 uv run python 05_langgraph_sequential_agent/01_temp_conversion.py
@@ -129,6 +134,19 @@ Progresses from a pure-Python graph to LLM nodes and a multi-step prompt chain.
 **`02_llm_qa.py`** — a single-node graph that answers a question with `ChatOpenAI` (GPT-4.1-mini). Introduces wiring an LLM into a LangGraph node. Requires `OPENAI_API_KEY`.
 
 **`03_prompt_chaining.py`** — a blog-post pipeline: `generate_outline` → `generate_content` → `evaluate_content`. Shared `BlogPostState` accumulates title, outline, content, and evaluation. Requires `OPENAI_API_KEY`.
+
+### 06 — LangGraph parallel
+
+```bash
+uv run python 06_langgraph_parallel_agent/01_employee_analytics.py
+uv run python 06_langgraph_parallel_agent/02_ai_essay_analysis.py
+```
+
+Shows fan-out from `START` into concurrent nodes, then fan-in to a shared downstream node.
+
+**`01_employee_analytics.py`** — pure-Python parallel graph: `calculate_yearly_salary` and `project_evaluation` run from `START` in parallel, both feed `calculate_bonus`, then `summary`. Interactive CLI prompts for employee inputs. No API keys required.
+
+**`02_ai_essay_analysis.py`** — three LLM evaluators (`evaluate_language`, `evaluate_analysis`, `evaluate_clarity`) run in parallel from `START`, then merge into `evaluate_overall`. Uses structured output (`EvaluationCriteria`) and an `Annotated[list[int], operator.add]` reducer to accumulate scores. Requires `OPENAI_API_KEY`.
 
 ## Dependencies
 
@@ -147,4 +165,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 covers linear graphs (state + nodes + edges). Later examples can add branching, loops, and tool-calling graphs.
+- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Later examples can add conditional branching, loops, and tool-calling graphs.
