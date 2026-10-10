@@ -1,12 +1,12 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, and conditional).
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, conditional, and iterative).
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; module 08)
 - A [Tavily API key](https://tavily.com/) (modules 03–04)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
@@ -62,6 +62,7 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 05 | `05_langgraph_sequential_agent/` | LangGraph sequential graphs — state, LLM nodes, prompt chaining |
 | 06 | `06_langgraph_parallel_agent/` | LangGraph parallel fan-out / fan-in — concurrent nodes and reducers |
 | 07 | `07_langgraph_conditional_agent/` | LangGraph conditional edges — branch on rules or LLM output |
+| 08 | `08_langgraph_iterative_agent/` | LangGraph iterative loops — generate, evaluate, and revise until approved |
 
 ### 01 — Async / Sync
 
@@ -163,6 +164,16 @@ Shows `add_conditional_edges`: a routing function reads state and picks the next
 
 **`02_llm_based_review.py`** — an LLM review responder. `find_sentiment` classifies the review as positive or negative with structured output (`SentimentSchema`). A positive review goes to `positive_response` and ends. A negative review goes to `run_diagnosis` (`DiagnosisSchema`: issue type, tone, urgency) and then `negative_response`. Default input is a negative product review. Requires `OPENAI_API_KEY`.
 
+### 08 — LangGraph iterative
+
+```bash
+uv run python 08_langgraph_iterative_agent/01_post_approval.py
+```
+
+Shows a revise-until-approved loop: a conditional edge routes back to an earlier node until the post is approved or the iteration cap is hit.
+
+**`01_post_approval.py`** — a social-post pipeline. `generate_post` drafts a short post (GPT-4.1-mini), then `evaluate_post` scores it with structured output (`PostEvaluationSchema`: `approved` or `need_improvement`, plus feedback). `check_evaluation` ends the graph when the post is approved or `iteration` reaches `max_iterations`; otherwise it sends the draft to `optimize_post` (GPT-5-mini), which increments the iteration and loops back to `evaluate_post`. `post_history` and `feedback_history` use an `Annotated[list[str], operator.add]` reducer so each pass appends rather than overwrites. Default input is the topic *Make my girlfriend laugh* with `max_iterations` of 3. Requires `OPENAI_API_KEY`.
+
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
@@ -180,4 +191,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Later examples can add loops and tool-calling graphs.
+- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Later examples can add tool-calling graphs.
