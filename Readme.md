@@ -1,12 +1,12 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential and parallel).
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, and conditional).
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02)
 - A [Tavily API key](https://tavily.com/) (modules 03–04)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
@@ -15,6 +15,7 @@ These run without API keys:
 - Modules 01 and 02
 - `05_langgraph_sequential_agent/01_temp_conversion.py`
 - `06_langgraph_parallel_agent/01_employee_analytics.py`
+- `07_langgraph_conditional_agent/01_content_moderation.py`
 
 ## Setup
 
@@ -60,6 +61,7 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 04 | `04_langchain_multi_agent/` | Multi-agent research pipeline — search, scrape, write, critique |
 | 05 | `05_langgraph_sequential_agent/` | LangGraph sequential graphs — state, LLM nodes, prompt chaining |
 | 06 | `06_langgraph_parallel_agent/` | LangGraph parallel fan-out / fan-in — concurrent nodes and reducers |
+| 07 | `07_langgraph_conditional_agent/` | LangGraph conditional edges — branch on rules or LLM output |
 
 ### 01 — Async / Sync
 
@@ -148,6 +150,19 @@ Shows fan-out from `START` into concurrent nodes, then fan-in to a shared downst
 
 **`02_ai_essay_analysis.py`** — three LLM evaluators (`evaluate_language`, `evaluate_analysis`, `evaluate_clarity`) run in parallel from `START`, then merge into `evaluate_overall`. Uses structured output (`EvaluationCriteria`) and an `Annotated[list[int], operator.add]` reducer to accumulate scores. Requires `OPENAI_API_KEY`.
 
+### 07 — LangGraph conditional
+
+```bash
+uv run python 07_langgraph_conditional_agent/01_content_moderation.py
+uv run python 07_langgraph_conditional_agent/02_llm_based_review.py
+```
+
+Shows `add_conditional_edges`: a routing function reads state and picks the next node.
+
+**`01_content_moderation.py`** — pure-Python moderation graph. `format_post_content` → `analyze_content`, then a router sends the post to `approve_post`, `flag_for_review` (low user reputation), or `reject_post` (keyword match on hate, violence, sexual, or nudity). Default input is a benign post from a low-reputation user, so it ends as `FLAGGED_FOR_REVIEW`. No API keys required.
+
+**`02_llm_based_review.py`** — an LLM review responder. `find_sentiment` classifies the review as positive or negative with structured output (`SentimentSchema`). A positive review goes to `positive_response` and ends. A negative review goes to `run_diagnosis` (`DiagnosisSchema`: issue type, tone, urgency) and then `negative_response`. Default input is a negative product review. Requires `OPENAI_API_KEY`.
+
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
@@ -165,4 +180,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Later examples can add conditional branching, loops, and tool-calling graphs.
+- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Later examples can add loops and tool-calling graphs.
