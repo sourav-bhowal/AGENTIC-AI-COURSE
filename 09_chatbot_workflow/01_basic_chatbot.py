@@ -54,6 +54,11 @@ while True:
     # Define the config
     config = {"configurable": {"thread_id": thread_id}}
 
-    # Invoke the graph with the config
-    result = graph.invoke({"messages": [HumanMessage(content=user_input)]}, config)
-    print("Bot: ", result["messages"][-1].content)
+    # Stream the result of the graph with the config
+    result = graph.stream({"messages": [HumanMessage(content=user_input)]}, config, stream_mode="messages")
+    print("Bot: ", end="", flush=True)
+
+    # Print the result
+    for message_chunk, metadata in result:
+        print(message_chunk.content, end="", flush=True)
+    print()
