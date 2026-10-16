@@ -35,7 +35,7 @@ build_graph.add_node("chat_node", chat_node)
 build_graph.add_edge(START, "chat_node")
 build_graph.add_edge("chat_node", END)
 
-# Compile the graph
+# Compile the graph with the checkpoint to save the state of the chatbot in RAM
 graph = build_graph.compile(checkpointer=checkpoint)
 
 # Define the thread id to save the state of the chatbot in RAM
