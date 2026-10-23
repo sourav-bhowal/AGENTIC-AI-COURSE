@@ -1,12 +1,12 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, conditional, iterative, and chatbot memory).
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, conditional, iterative, chatbot memory, and checkpoint persistence).
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; modules 08–09)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; modules 08–10)
 - A [Tavily API key](https://tavily.com/) (modules 03–04)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
@@ -64,6 +64,7 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 07 | `07_langgraph_conditional_agent/` | LangGraph conditional edges — branch on rules or LLM output |
 | 08 | `08_langgraph_iterative_agent/` | LangGraph iterative loops — generate, evaluate, and revise until approved |
 | 09 | `09_chatbot_workflow/` | LangGraph chatbot — conversation state, checkpoints, and thread memory |
+| 10 | `10_persistence/` | LangGraph persistence — `InMemorySaver` checkpoints keyed by `thread_id` |
 
 ### 01 — Async / Sync
 
@@ -185,6 +186,16 @@ Shows a conversational LangGraph with persistent turn memory via a checkpointer.
 
 **`01_basic_chatbot.py`** — an interactive CLI chatbot. `ChatState` holds a `messages` list with the `add_messages` reducer so each turn appends rather than overwrites. A single `chat_node` invokes `ChatOpenAI` (GPT-4.1-mini) on the full message history. The graph is compiled with a `MemorySaver` checkpointer and invoked under a fixed `thread_id`, so earlier turns stay in context across the loop. Type `exit` to quit. Requires `OPENAI_API_KEY`.
 
+### 10 — Persistence
+
+```bash
+uv run python 10_persistence/01_joke.py
+```
+
+Shows how a compiled graph saves state between steps when you pass a checkpointer and a thread config.
+
+**`01_joke.py`** — a two-node joke pipeline. `JokeState` holds `topic`, `joke`, and `explanation`. `generate_joke_node` drafts a joke about the topic with `ChatOpenAI` (GPT-4.1-mini), then `explain_joke_node` explains it. The graph is compiled with an `InMemorySaver` checkpointer and invoked with `config={"configurable": {"thread_id": "joke_thread_1"}}`, so the run is stored under that thread. Default topic: *programming with AI*. Requires `OPENAI_API_KEY`.
+
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
@@ -202,4 +213,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Later examples can add tool-calling graphs.
+- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Module 10 saves a multi-node run with `InMemorySaver` under a `thread_id`. Later examples can add tool-calling graphs.
