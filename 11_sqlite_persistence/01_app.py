@@ -68,8 +68,8 @@ while True:
     if user_input.lower() == "exit":
         break
 
-    # Define the config
-    config = {"configurable": {"thread_id": thread_id}}
+    # Define the config with metadata (for langsmith) and run name (for langsmith)
+    config = {"configurable": {"thread_id": thread_id}, "metadata": {"thread_id": thread_id}, "run_name": "chat_trace"}
 
     # Stream the result of the graph with the config
     result = graph.stream({"messages": [HumanMessage(content=user_input)]}, config, stream_mode="messages")
