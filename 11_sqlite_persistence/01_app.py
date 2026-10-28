@@ -48,6 +48,16 @@ graph = build_graph.compile(checkpointer)
 # Define the thread id to save the state of the chatbot in SQLite
 thread_id = "chat_thread_1"
 
+# Print unique thread from the database
+def print_unique_thread_ids():
+    all_thread_ids = set()
+    for ckpt in checkpointer.list(None):
+        all_thread_ids.add(ckpt.config["configurable"]["thread_id"])
+    print(list(all_thread_ids))
+
+# Print the unique thread ids
+print_unique_thread_ids()
+
 # Run the chatbot in a loop
 print("Welcome to the chatbot! Type 'exit' to end the conversation.")
 while True:
