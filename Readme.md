@@ -1,13 +1,13 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, conditional, iterative, chatbot memory, in-memory checkpoints, and SQLite persistence).
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, conditional, iterative, chatbot memory, in-memory / SQLite persistence, and tool-calling agents).
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; modules 08–11)
-- A [Tavily API key](https://tavily.com/) (modules 03–04)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; modules 08–12)
+- A [Tavily API key](https://tavily.com/) (modules 03–04 and 12)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
 These run without API keys:
@@ -66,6 +66,7 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 09 | `09_chatbot_workflow/` | LangGraph chatbot — conversation state, checkpoints, and thread memory |
 | 10 | `10_persistence_in_memory/` | LangGraph persistence — `InMemorySaver` checkpoints keyed by `thread_id` |
 | 11 | `11_sqlite_persistence/` | LangGraph SQLite persistence — durable `SqliteSaver` checkpoints across restarts |
+| 12 | `12_tools_for_agents/` | LangGraph tool-calling agents — `ToolNode`, `tools_condition`, search / weather / calc tools |
 
 ### 01 — Async / Sync
 
@@ -207,11 +208,27 @@ Shows durable conversation memory: checkpoints written to a local SQLite file so
 
 **`01_app.py`** — an interactive CLI chatbot backed by `SqliteSaver`. Opens (or creates) `chatbot.db` with `sqlite3.connect(..., check_same_thread=False)`, builds a single-node `chat_node` graph over `ChatState` (`messages` + `add_messages`), and compiles with the SQLite checkpointer. Runs under a fixed `thread_id` (`chat_thread_1`) and streams token chunks via `stream_mode="messages"`. On startup it lists unique thread IDs already stored in the database. Type `exit` to quit. Requires `OPENAI_API_KEY`.
 
+### 12 — Tools for agents
+
+```bash
+uv run python 12_tools_for_agents/01_app.py
+```
+
+Shows a LangGraph chatbot that can call tools when needed, then loop back to refine the answer.
+
+**`01_app.py`** — an interactive CLI agent with three tools bound to `ChatOpenAI` (GPT-4.1-mini):
+
+- **Tavily Search** (`TavilySearch`) — live web results (`max_results=5`, advanced depth)
+- **`get_weather_tool`** — city weather via [wttr.in](https://wttr.in)
+- **`calculate_tool`** — safe `eval` of math expressions (`math`, `abs`, `round`, `min`, `max`, `sum`)
+
+The graph has `chat_node` (LLM + bound tools) and a prebuilt `ToolNode`. `tools_condition` routes to `"tools"` when the model requests a tool call, then edges back to `chat_node` so the model can turn tool output into a final reply. Compiled with `InMemorySaver` under `thread_id` `chat_with_tools`. Type `exit` to quit. Requires `OPENAI_API_KEY` and `TAVILY_API_KEY`.
+
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
 
-- `langchain`, `langchain-openai`, `langchain-community`, `langchainhub`
+- `langchain`, `langchain-openai`, `langchain-community`, `langchainhub`, `langchain-tavily`
 - `langgraph`, `langgraph-checkpoint-sqlite`
 - `langsmith`
 - `pydantic`
@@ -224,4 +241,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Module 10 saves a multi-node run with `InMemorySaver` under a `thread_id`. Module 11 persists chatbot checkpoints to SQLite with `SqliteSaver` so memory survives restarts. Later examples can add tool-calling graphs.
+- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Module 10 saves a multi-node run with `InMemorySaver` under a `thread_id`. Module 11 persists chatbot checkpoints to SQLite with `SqliteSaver` so memory survives restarts. Module 12 adds tool calling with `ToolNode` and `tools_condition` (search, weather, and calculator).
