@@ -2,7 +2,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
-from langchain_core.messages import HumanMessage, BaseMessage
+from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langchain_core.tools import tool
 from langchain_tavily import TavilySearch
@@ -66,7 +66,30 @@ class ChatState(TypedDict):
 # Define the Chat Node
 def chat_node(state: ChatState) -> ChatState:
     """Chat Node for the chatbot"""
-    return {"messages": [llm_with_tools.invoke(state["messages"])]}
+
+    # Define the system message
+    system_message = SystemMessage(
+        content=(
+            "You are a helpful assistant that can use the following tools to answer questions.\n\n"
+
+            "Tool usage instructions:\n\n"
+            "- Use `search_tool` to search the web for information.\n"
+            "- Use `get_weather_tool` to get the weather of a city.\n"
+            "- Use `calculate_tool` to calculate the result of an expression.\n"
+
+            "Always use the tools to answer questions. If you don't know the answer, say 'I don't know' and don't make up information."
+            "Answer general questions directly without using the tools."
+        )
+    )
+
+    # Combine the system message with the messages from the state
+    messages = [system_message, *state["messages"]]
+
+    # Invoke the LLM with the messages
+    response = llm_with_tools.invoke(messages)
+
+    # Return the response to the state
+    return {"messages": [response]}
 
 # Define the Tool Node
 tool_node = ToolNode(tools)
