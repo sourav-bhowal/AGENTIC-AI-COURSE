@@ -222,3 +222,6 @@ __marimo__/
 
 # SQLite database
 *.db
+
+# PDF files
+*.pdf
