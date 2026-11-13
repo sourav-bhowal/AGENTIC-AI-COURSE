@@ -1,12 +1,12 @@
 # Agentic AI Course
 
-Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, conditional, iterative, chatbot memory, in-memory / SQLite persistence, tool-calling agents, and RAG over a PDF).
+Hands-on Python examples for building agentic AI systems — from async fundamentals and data validation with Pydantic, through LangChain ReAct agents (single-agent and multi-agent), to graph-based workflows with LangGraph (sequential, parallel, conditional, iterative, chatbot memory, in-memory / SQLite persistence, tool-calling agents, RAG over a PDF, and human-in-the-loop interrupts).
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
-- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; modules 08–13)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; modules 08–14)
 - A [Tavily API key](https://tavily.com/) (modules 03–04 and 12)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
@@ -68,6 +68,7 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 11 | `11_sqlite_persistence/` | LangGraph SQLite persistence — durable `SqliteSaver` checkpoints across restarts |
 | 12 | `12_tools_for_agents/` | LangGraph tool-calling agents — `ToolNode`, `tools_condition`, search / weather / calc tools |
 | 13 | `13_RAG_using_langgraph/` | RAG with LangGraph — PDF load → chunk → FAISS retrieve → tool-calling chatbot |
+| 14 | `14_HITL/` | Human-in-the-loop — `interrupt` / `Command(resume=…)` to pause for approval before the model answers |
 
 ### 01 — Async / Sync
 
@@ -244,6 +245,16 @@ Shows retrieval-augmented generation: index a PDF into a vector store, then expo
 
 The `search_resume` tool queries the FAISS retriever and returns formatted chunks (source, page, content). Run from `13_RAG_using_langgraph/` so `resume.pdf` resolves. Type `exit` to quit. Requires `OPENAI_API_KEY`.
 
+### 14 — Human-in-the-loop (HITL)
+
+```bash
+uv run python 14_HITL/01_app.py
+```
+
+Shows pausing a graph mid-run so a human can approve or reject before the model answers.
+
+**`01_app.py`** — an interactive CLI chatbot with an approval gate. `ChatState` holds a `messages` list with the `add_messages` reducer. Inside `chat_node`, `interrupt(...)` pauses the graph and returns a payload (`type`, `reason`, `question`, `instruction`). The CLI detects `__interrupt__` in the result, prompts `Approve? (yes/no)`, then resumes with `Command(resume={"approved": …})`. If approved, the node invokes `ChatOpenAI` (GPT-4.1-mini); if not, it returns a rejection message. A `MemorySaver` checkpointer is required for interrupts to work. Type `exit` to quit. Requires `OPENAI_API_KEY`.
+
 ## Dependencies
 
 Key packages (see `requirements.txt` for the full list):
@@ -262,4 +273,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Module 10 saves a multi-node run with `InMemorySaver` under a `thread_id`. Module 11 persists chatbot checkpoints to SQLite with `SqliteSaver` so memory survives restarts. Module 12 adds tool calling with `ToolNode` and `tools_condition` (search, weather, and calculator). Module 13 adds RAG: PDF → chunks → FAISS embeddings → retrieve-as-tool chatbot.
+- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Module 10 saves a multi-node run with `InMemorySaver` under a `thread_id`. Module 11 persists chatbot checkpoints to SQLite with `SqliteSaver` so memory survives restarts. Module 12 adds tool calling with `ToolNode` and `tools_condition` (search, weather, and calculator). Module 13 adds RAG: PDF → chunks → FAISS embeddings → retrieve-as-tool chatbot. Module 14 adds human-in-the-loop with `interrupt` and `Command(resume=…)` so a human can approve or reject before the model answers.
