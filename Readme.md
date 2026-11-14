@@ -7,7 +7,7 @@ Hands-on Python examples for building agentic AI systems — from async fundamen
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.10+ (uv can install this for you)
 - An [OpenAI API key](https://platform.openai.com/api-keys) (modules 03–04; `05` examples 02–03; `06` example 02; `07` example 02; modules 08–14)
-- A [Tavily API key](https://tavily.com/) (modules 03–04 and 12)
+- A [Tavily API key](https://tavily.com/) (modules 03–04 and 12; `14` example 02)
 - A [LangSmith API key](https://smith.langchain.com/) (module 03, to pull the ReAct prompt)
 
 These run without API keys:
@@ -68,7 +68,7 @@ LANGSMITH_API_KEY=your_langsmith_key
 | 11 | `11_sqlite_persistence/` | LangGraph SQLite persistence — durable `SqliteSaver` checkpoints across restarts |
 | 12 | `12_tools_for_agents/` | LangGraph tool-calling agents — `ToolNode`, `tools_condition`, search / weather / calc tools |
 | 13 | `13_RAG_using_langgraph/` | RAG with LangGraph — PDF load → chunk → FAISS retrieve → tool-calling chatbot |
-| 14 | `14_HITL/` | Human-in-the-loop — `interrupt` / `Command(resume=…)` to pause for approval before the model answers |
+| 14 | `14_HITL/` | Human-in-the-loop — `interrupt` / `Command(resume=…)` to pause for approval before the model answers, or before a stock-order tool runs |
 
 ### 01 — Async / Sync
 
@@ -249,11 +249,14 @@ The `search_resume` tool queries the FAISS retriever and returns formatted chunk
 
 ```bash
 uv run python 14_HITL/01_app.py
+uv run python 14_HITL/02_chatbot_with_hitl.py
 ```
 
-Shows pausing a graph mid-run so a human can approve or reject before the model answers.
+Shows pausing a graph mid-run so a human can approve or reject before the model answers, or before a sensitive tool runs.
 
 **`01_app.py`** — an interactive CLI chatbot with an approval gate. `ChatState` holds a `messages` list with the `add_messages` reducer. Inside `chat_node`, `interrupt(...)` pauses the graph and returns a payload (`type`, `reason`, `question`, `instruction`). The CLI detects `__interrupt__` in the result, prompts `Approve? (yes/no)`, then resumes with `Command(resume={"approved": …})`. If approved, the node invokes `ChatOpenAI` (GPT-4.1-mini); if not, it returns a rejection message. A `MemorySaver` checkpointer is required for interrupts to work. Type `exit` to quit. Requires `OPENAI_API_KEY`.
+
+**`02_chatbot_with_hitl.py`** — the module 12 tool-calling chatbot with a human gate on one tool. Four tools are bound to `ChatOpenAI` (GPT-4.1-mini): Tavily Search, `get_weather_tool`, `calculate_tool`, and `purchase_stock_tool`. Search, weather, and math run immediately. `purchase_stock_tool` calls `interrupt(...)` before placing a dummy stock order (`symbol`, `quantity`). The CLI prints the interrupt payload, prompts `Approve? (yes/no)`, and resumes with `Command(resume={"approved": …})`. An approval of `yes` returns a success payload; anything else cancels the order. The graph is `chat_node` ↔ `ToolNode` via `tools_condition`, compiled with `MemorySaver` under `thread_id` `chat_with_tools_and_hitl`. Type `exit` to quit. Requires `OPENAI_API_KEY` and `TAVILY_API_KEY`.
 
 ## Dependencies
 
@@ -273,4 +276,4 @@ Key packages (see `requirements.txt` for the full list):
 
 - Keep `.env` out of version control (already listed in `.gitignore`).
 - The single agent uses the [LangSmith](https://smith.langchain.com/) client to pull the ReAct prompt (`hwchase17/react`).
-- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Module 10 saves a multi-node run with `InMemorySaver` under a `thread_id`. Module 11 persists chatbot checkpoints to SQLite with `SqliteSaver` so memory survives restarts. Module 12 adds tool calling with `ToolNode` and `tools_condition` (search, weather, and calculator). Module 13 adds RAG: PDF → chunks → FAISS embeddings → retrieve-as-tool chatbot. Module 14 adds human-in-the-loop with `interrupt` and `Command(resume=…)` so a human can approve or reject before the model answers.
+- Module 05 covers linear graphs (state + nodes + edges). Module 06 adds parallel fan-out / fan-in and reducers. Module 07 adds conditional branching with `add_conditional_edges`. Module 08 adds an iterative loop that routes back to an earlier node until a stop condition. Module 09 adds a conversational chatbot with `add_messages` and `MemorySaver` thread checkpoints. Module 10 saves a multi-node run with `InMemorySaver` under a `thread_id`. Module 11 persists chatbot checkpoints to SQLite with `SqliteSaver` so memory survives restarts. Module 12 adds tool calling with `ToolNode` and `tools_condition` (search, weather, and calculator). Module 13 adds RAG: PDF → chunks → FAISS embeddings → retrieve-as-tool chatbot. Module 14 adds human-in-the-loop with `interrupt` and `Command(resume=…)`: approve a question before the model answers, or approve a stock order before the tool runs.
